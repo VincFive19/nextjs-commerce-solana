@@ -18,6 +18,14 @@ interface Props {
 
 const placeholderImg = '/product-img-placeholder.svg'
 
+async function solanaPrice(audPrice: number) {
+  const price = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=aud')
+  console.log(price.solana.aud)
+  const priceInSol = price.solana.aud;
+  const priceInAud = priceInSol * audPrice
+  return priceInAud
+}
+
 const ProductCard: FC<Props> = ({
   product,
   imgProps,
@@ -77,6 +85,7 @@ const ProductCard: FC<Props> = ({
                 </h3>
                 <div className={s.price}>
                   {`${price} ${product.price?.currencyCode}`}
+                  Solana: {solanaPrice(product.price.value)}
                 </div>
               </div>
             )}

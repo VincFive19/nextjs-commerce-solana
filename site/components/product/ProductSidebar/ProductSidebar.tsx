@@ -13,6 +13,7 @@ import ErrorMessage from '@components/ui/ErrorMessage'
 import { Connection, PublicKey } from '@solana/web3.js'
 import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react'
 import { Metaplex } from '@metaplex-foundation/js'
+import usePrice from '@framework/product/use-price'
 
 interface ProductSidebarProps {
   product: Product
@@ -62,6 +63,36 @@ const ProductSidebar: FC<ProductSidebarProps> = ({ product, className }) => {
 
   // Commerce Logic
 
+  const [solanaPrice, setSolanaPrice] = useState(0)
+
+  useEffect(() => {
+    fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=aud'
+    )
+      .then((response) => response.json())
+      .then((data) => setSolanaPrice(product.price.value / data.solana.aud  /*product.price.value*/))
+  })
+
+  // async function solanaPrice(audPrice: number) {
+  //   await fetch(
+  //     'https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=aud'
+  //   )
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       return data.solana.aud * audPrice
+  //     })
+  //   // console.log(price)
+  //   // const priceInSol = price.solana.aud
+  //   // const priceInAud = priceInSol * audPrice
+  //   // return priceInAud
+  // }
+
+  const { price } = usePrice({
+    amount: product.price.value,
+    baseAmount: product.price.retailPrice,
+    currencyCode: product.price.currencyCode!,
+  })
+
   const addItem = useAddItem()
   const { openSidebar, setSidebarView } = useUI()
   const [loading, setLoading] = useState(false)
@@ -100,6 +131,8 @@ const ProductSidebar: FC<ProductSidebarProps> = ({ product, className }) => {
     <div>
       <div className={className}>
         {console.log(product)}
+        {`${price} ${product.price?.currencyCode}`}
+        {JSON.stringify(solanaPrice)} SOL
         <ProductOptions
           options={product.options}
           selectedOptions={selectedOptions}
@@ -132,7 +165,7 @@ const ProductSidebar: FC<ProductSidebarProps> = ({ product, className }) => {
                 tokenHolder === false
               }
             >
-              {variant?.availableForSale === false
+              {/* <span>{variant?.availableForSale === false
               ? ('Not Available')
               : (
                 { wallet 
@@ -142,7 +175,7 @@ const ProductSidebar: FC<ProductSidebarProps> = ({ product, className }) => {
                   )
                 }
               )
-            }
+            }</span> */}
             </Button>
           ) : (
             <Button
